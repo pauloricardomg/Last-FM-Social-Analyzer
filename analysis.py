@@ -62,11 +62,10 @@ def main():
 
 	print "Full crawl size: %d" % len(full_crawl)
 
+	random.seed(33)
 	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
-		random_sample = get_random_samples(full_crawl, num_samples)
+		random_sample = random.sample(full_crawl, num_samples)
 		analyze(random_sample)
-		
-
 	db.close()
 
 
@@ -122,6 +121,7 @@ def analyze(ListLastFMUser):
         RWRW.friends = float(weighted_total_friends) / total_weight
         
         
+	print ""
         print "Results for sample size of {}".format(num_total_users)
 	print "{0:20s} {1:^15s} {2:^15s}".format("", "RW", "RWRW")
         print "{0:20s} {1:<15f} {2:<15f}".format( "average playcount", RW.playcount, RWRW.playcount)
@@ -129,7 +129,8 @@ def analyze(ListLastFMUser):
         print "{0:20s} {1:<15f} {2:<15f}".format( "average age", RW.age, RWRW.age)
         print "{0:20s} {1:<15f} {2:<15f}".format( "average id", RW.id, RWRW.id)
         print "{0:20s} {1:<15f} {2:<15f}".format( "average friends", RW.friends, RWRW.friends)
-	
+	print ""
+
 	return RW, RWRW
 
 
@@ -157,14 +158,6 @@ def load_crawl(db):
 				crawl.append(info)
 
 	return crawl
-
-def get_random_samples(full_crawl, num_samples):
-	crawl = full_crawl[:]
-	random.seed(33)
-	random_samples = []
-	for i in range(num_samples):
-		random_samples.append(crawl.pop(random.randint(0, len(crawl)-1)))
-	return random_samples
 
 if __name__ == "__main__":
             main()
