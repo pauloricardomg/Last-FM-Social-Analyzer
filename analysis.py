@@ -65,7 +65,7 @@ def main():
 	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
 		random_sample = get_random_samples(full_crawl, num_samples)
 		analyze(random_sample)
-		print len(random_sample)
+		
 
 	db.close()
 
