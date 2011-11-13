@@ -112,11 +112,14 @@ def crawl():
 			crawl_order.append(login)
 			if num_crawls % 100 == 0:
                                	print "[%s] Crawled %d users. Synchronizing DB.." % (getTS(), num_crawls)
-				total_crawl_order = db["crawl-order"]
-				total_crawl_order.extend(crawl_order)
+				try:
+					total_crawl_order = db["crawl-order"]
+					total_crawl_order.extend(crawl_order)
+					db["crawl-order"] = total_crawl_order
+				except KeyError:
+					db["crawl-order"] = crawl_order
 				crawl_order = []
-				db["crawl-order"] = total_crawl_order
-                		db["random-state"] = random.getstate() 
+				db["random-state"] = random.getstate() 
 				db.sync()
                                	print "[%s] Sleeping 5 seconds. It is safe to stop now. Ctrl+C if you want to quit." % (getTS())
                                	time.sleep(5)
@@ -147,12 +150,17 @@ def crawl():
 def flush_db(signal="", frame=""):
                 global login
 		global crawl_order
-                print "Crawling finished. Crawled %d users. Closing DB file.!" % len(crawl_order)
-		total_crawl_order = db["crawl-order"]
-		total_crawl_order.extend(crawl_order)
-		db["crawl-order"] = total_crawl_order
-                db["random-state"] = random.getstate() 
-                db.close()
+                print "Crawling finished. Closing DB file.!"
+	
+		try:
+			total_crawl_order = db["crawl-order"]
+			total_crawl_order.extend(crawl_order)
+			db["crawl-order"] = total_crawl_order
+		except KeyError:
+			db["crawl-order"] = crawl_order
+	
+		db["random-state"] = random.getstate() 
+		db.close()
                 sys.exit(0)
 
 if __name__ == "__main__":
