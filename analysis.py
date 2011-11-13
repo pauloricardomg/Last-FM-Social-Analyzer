@@ -8,10 +8,12 @@ import random
 import traceback
 import time
 import datetime
+import math
 
 LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
 
 def main():
+        print variance([1,2,3,4,5])
         db = 0
         login = "rj"
         num_crawls = 0
@@ -96,6 +98,20 @@ def main():
         print "average friends: \t{}\t{}".format( unweighted_average_friends, weighted_average_friends)
                 
         db.close()
+
+def add(x,y):
+        return x+y
+
+#variance([1,2,3,4,5]) will return 2.0
+def variance(valueList):
+        sum = reduce(add,valueList)
+        length = len(valueList)
+        mean = sum / length
+        variance = 0.0
+        for x in valueList:
+                variance += math.pow(x-mean,2)
+        return variance / length
+                
 
 if __name__ == "__main__":
             main()
