@@ -98,12 +98,13 @@ def crawl():
                                 num_friends = get_num_friends(login)
 
                                 user = LastFMUser(user_id, country, age, gender, playcount, playlists, num_friends, 1)
+				db[login] = user
                       
 			chosen_friend = -1
                         retry_count = 0
                         
 			if num_friends == 0:
-                                print "[%s] User %s has 0 friends. Rolling back to user %s" % (getTS(), login, last_login)
+                                print "[%s] User %s has 0 friends. Rolling back to user %s" % (getTS(), login, crawl_order[-1])
                                 login = crawl_order[-1]
                                 num_friends = db[login].friends
 				continue
@@ -131,7 +132,7 @@ def crawl():
                         traceback.print_exc(file=sys.stdout)
                         
                         if isinstance(e, urllib2.HTTPError) and ee.code == 500:
-				print "[%s] HTTP error when trying to retrieve info from user %s. Rolling back to user %s" % (getTS(), login, last_login)
+				print "[%s] HTTP error when trying to retrieve info from user %s. Rolling back to user %s" % (getTS(), login, crawl_order[-1])
                                 login = crawl_order[-1]
                                 num_friends = db[login].friends
 				chosen_friend = -1
