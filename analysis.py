@@ -13,7 +13,6 @@ import math
 LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
 
 def main():
-        print variance([1,2,3,4,5])
         db = 0
         login = "rj"
         num_crawls = 0
@@ -45,59 +44,70 @@ def main():
                         db.close()
                         sys.exit(1)
 
+	full_crawl = load_crawl(db)
+
+	print "Full crawl size: %d" % len(full_crawl)
+
+	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
+		random_sample = get_random_samples(full_crawl, num_samples)
+		# Call analysis method here
+		print len(random_sample)
+
+	db.close()
+
         # Do analysis here!
-        unweighted_total_playcount = 0
-        unweighted_total_playlists = 0
-        unweighted_total_age = 0
-        unweighted_total_id = 0
-        unweighted_total_friends = 0
+#        unweighted_total_playcount = 0
+#        unweighted_total_playlists = 0
+#        unweighted_total_age = 0
+#        unweighted_total_id = 0
+#        unweighted_total_friends = 0
         
-        weighted_total_playcount = 0
-        weighted_total_playlists = 0
-        weighted_total_age = 0
-        weighted_total_id = 0
-        weighted_total_friends = 0
-        total_weight = 0
-        for login, info in db.iteritems():
-                if isinstance(info, LastFMUser):
-                        if info.age == '' or int(info.friends)==0:
-                                num_total_nodes -= 1
-                                continue
-                        unweighted_total_playcount += int(info.playcount)
-                        unweighted_total_playlists += int(info.playlists)
-                        unweighted_total_age += int(info.age)
-                        unweighted_total_id += int(info.id)
-                        unweighted_total_friends += int(info.friends)
+#        weighted_total_playcount = 0
+#        weighted_total_playlists = 0
+#        weighted_total_age = 0
+#        weighted_total_id = 0
+#        weighted_total_friends = 0
+#        total_weight = 0
+#        for login, info in db.iteritems():
+#                if isinstance(info, LastFMUser):
+#                        if info.age == '' or int(info.friends)==0:
+#                                num_total_nodes -= 1
+#                                continue
+#                        unweighted_total_playcount += int(info.playcount)
+#                        unweighted_total_playlists += int(info.playlists)
+#                        unweighted_total_age += int(info.age)
+#                        unweighted_total_id += int(info.id)
+#                        unweighted_total_friends += int(info.friends)
                         
-                        weight = 1/float(info.friends)
-                        weighted_total_playcount += int(info.playcount) * weight
-                        weighted_total_playlists += int(info.playlists) * weight
-                        weighted_total_age += int(info.age) * weight
-                        weighted_total_id += int(info.id) * weight
-                        weighted_total_friends += int(info.friends) * weight
-                        total_weight += weight
+#                        weight = 1/float(info.friends)
+#                        weighted_total_playcount += int(info.playcount) * weight
+#                        weighted_total_playlists += int(info.playlists) * weight
+#                        weighted_total_age += int(info.age) * weight
+#                        weighted_total_id += int(info.id) * weight
+#                        weighted_total_friends += int(info.friends) * weight
+#                        total_weight += weight
                         
-        unweighted_average_playcount = float(unweighted_total_playcount) / float(num_total_nodes)
-        unweighted_average_playlist = float(unweighted_total_playlists) / float(num_total_nodes)
-        unweighted_average_age = float(unweighted_total_age) / float(num_total_nodes)
-        unweighted_average_id = float(unweighted_total_id) / float(num_total_nodes)
-        unweighted_average_friends = float(unweighted_total_friends) / float(num_total_nodes)
+#        unweighted_average_playcount = float(unweighted_total_playcount) / float(num_total_nodes)
+#        unweighted_average_playlist = float(unweighted_total_playlists) / float(num_total_nodes)
+#        unweighted_average_age = float(unweighted_total_age) / float(num_total_nodes)
+#        unweighted_average_id = float(unweighted_total_id) / float(num_total_nodes)
+#        unweighted_average_friends = float(unweighted_total_friends) / float(num_total_nodes)
         
-        weighted_average_playcount = float(weighted_total_playcount) / total_weight
-        weighted_average_playlist = float(weighted_total_playlists) / total_weight
-        weighted_average_age = float(weighted_total_age) / total_weight
-        weighted_average_id = float(weighted_total_id) / total_weight
-        weighted_average_friends = float(weighted_total_friends) / total_weight
+#        weighted_average_playcount = float(weighted_total_playcount) / total_weight
+#        weighted_average_playlist = float(weighted_total_playlists) / total_weight
+#        weighted_average_age = float(weighted_total_age) / total_weight
+#        weighted_average_id = float(weighted_total_id) / total_weight
+#        weighted_average_friends = float(weighted_total_friends) / total_weight
         
         
-        print "\t\t\t RW \t\t RWRW"
-        print "average playcount: \t{}\t{}".format( unweighted_average_playcount, weighted_average_playcount)
-        print "average playlists: \t{}\t{}".format( unweighted_average_playlist, weighted_average_playlist)
-        print "average age: \t\t{}\t{}".format( unweighted_average_age, weighted_average_age)
-        print "average id: \t\t{}\t{}".format( unweighted_average_id, weighted_average_id)
-        print "average friends: \t{}\t{}".format( unweighted_average_friends, weighted_average_friends)
+#        print "\t\t\t RW \t\t RWRW"
+#        print "average playcount: \t{}\t{}".format( unweighted_average_playcount, weighted_average_playcount)
+#        print "average playlists: \t{}\t{}".format( unweighted_average_playlist, weighted_average_playlist)
+#        print "average age: \t\t{}\t{}".format( unweighted_average_age, weighted_average_age)
+#        print "average id: \t\t{}\t{}".format( unweighted_average_id, weighted_average_id)
+#        print "average friends: \t{}\t{}".format( unweighted_average_friends, weighted_average_friends)
                 
-        db.close()
+#        db.close()
 
 def add(x,y):
         return x+y
@@ -112,6 +122,25 @@ def variance(valueList):
                 variance += math.pow(x-mean,2)
         return variance / length
                 
+def load_crawl(db):
+	crawl = []
+        for login, info in db.iteritems():
+                if isinstance(info, LastFMUser):
+                        if info.age == '' or int(info.friends)==0:
+                                continue
+			
+			for i in range(int(info.crawl_count)):
+				crawl.append(info)
+
+	return crawl
+
+def get_random_samples(full_crawl, num_samples):
+	crawl = full_crawl[:]
+	random.seed(33)
+	random_samples = []
+	for i in range(num_samples):
+		random_samples.append(crawl.pop(random.randint(0, len(crawl)-1)))
+	return random_samples
 
 if __name__ == "__main__":
             main()
