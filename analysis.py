@@ -10,6 +10,7 @@ import time
 import datetime
 import math
 from resulttypes import RWResult, RWRWResult
+from plot import meanAgeVSsampleSize
 
 LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
 
@@ -66,6 +67,7 @@ def main():
 			ListRWRW.append(RWRW)
 		ListListRW.append(ListRW)
 		ListListRWRW.append(ListRWRW)
+	meanAgeVSsampleSize(ListListRW,ListListRWRW)
 	db.close()
 
 
