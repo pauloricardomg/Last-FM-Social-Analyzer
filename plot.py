@@ -29,7 +29,7 @@ def meanAgeVSsampleSize(ListListRW, ListListRWRW):
                                                          ax.transAxes)
     ax.set_xlabel('Sample Size')
     ax.set_ylabel('Age Means')
-    ax.set_ylim(22, 26.5)
+    #ax.set_ylim(22, 26.5)
     fig.subplots_adjust(right=0.95, top=0.9, bottom=0.25)
     
     boxColors = ['darkkhaki','royalblue']
@@ -67,3 +67,74 @@ def meanAgeVSsampleSize(ListListRW, ListListRWRW):
                color='white', weight='roman', size='x-small')
 
     plt.show()
+    
+def distributionsRWdegree(ListLastFMUser):
+    populationSize = len(ListLastFMUser)
+    DictDegree = dict()
+    for user in ListLastFMUser:
+        degree = int(user.friends)
+        if degree in DictDegree:
+            DictDegree[degree] += 1
+        else:
+            DictDegree[degree] = 1
+    keys = DictDegree.keys()
+    keys.sort()
+    probability = []
+    for key in keys:
+        probability.append(float(DictDegree[key]) / float(populationSize))
+    fig = plt.figure()
+    fig.add_subplot(111)
+    plt.loglog(keys, probability)
+    plt.grid(True)
+    plt.title('distribution of degree by RW')
+    plt.show()
+    
+def distributionsRWid(ListLastFMUser):
+    populationSize = len(ListLastFMUser)
+    DictID = dict()
+    for user in ListLastFMUser:
+        id = int(user.id)
+        if id in DictID:
+            DictID[id] += 1
+        else:
+            DictID[id] = 1
+    keys = DictID.keys()
+    keys.sort()
+    probability = []
+    for key in keys:
+        probability.append(float(DictID[key]) / float(populationSize))
+    fig = plt.figure()
+    fig.add_subplot(111)
+    plt.loglog(keys, probability)
+    plt.grid(True)
+    plt.title('distribution of id by RW')
+    plt.show()
+
+    
+def distributionsRWRWdegree(ListLastFMUser):
+    totalweight = 0.0
+    DictWeight = dict()
+    for user in ListLastFMUser:
+        degree = int(user.friends)
+        weight = 1.0/degree
+        if degree in DictWeight:
+            DictWeight[degree] += weight
+        else:
+            DictWeight[degree] = weight
+        totalweight += weight 
+
+    keys = DictWeight.keys()
+    keys.sort()
+    probability = []
+    for key in keys:
+        probability.append(DictWeight[key] / totalweight)
+    fig = plt.figure()
+    fig.add_subplot(111)
+    plt.loglog(keys, probability)
+    plt.grid(True)
+    plt.title('distribution of degree by RWRW')
+    plt.show()
+
+    
+if __name__ == "__main__":
+            main()

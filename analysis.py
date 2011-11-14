@@ -10,7 +10,7 @@ import time
 import datetime
 import math
 from resulttypes import RWResult, RWRWResult
-from plot import meanAgeVSsampleSize
+from plot import meanAgeVSsampleSize, distributionsRWid, distributionsRWdegree, distributionsRWRWdegree
 
 LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
 
@@ -54,6 +54,11 @@ def main():
 	print "Full crawl size: %d" % len(full_crawl)
 
 	random.seed(33)
+	
+	random_sample = random.sample(full_crawl, 40000)
+	distributionsRWdegree(random_sample)
+	distributionsRWRWdegree(random_sample)
+	
 	
 	ListListRW = []
 	ListListRWRW = []
