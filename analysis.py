@@ -9,22 +9,13 @@ import traceback
 import time
 import datetime
 import math
+from resulttypes import RWResult, RWRWResult
+from plot import meanAgeVSsampleSize, distributionsRWid, distributionsRWdegree, distributionsRWRWdegree
 
 LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
 
 ########################################################################
-class Result:
-	playcount = 0.0
-	playlists = 0.0
-	age = 0.0
-	id = 0.0
-	friends = 0.0
 
-class RWResult(Result):
-	samplesize = 0
-
-class RWRWResult(Result):
-	samplesize = 0
 
 def main():
         db = 0
@@ -63,9 +54,25 @@ def main():
 	print "Full crawl size: %d" % len(full_crawl)
 
 	random.seed(33)
+	
+	random_sample = random.sample(full_crawl, 40000)
+	distributionsRWdegree(random_sample)
+	distributionsRWRWdegree(random_sample)
+	
+	
+	ListListRW = []
+	ListListRWRW = []
 	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
-		random_sample = random.sample(full_crawl, num_samples)
-		analyze(random_sample)
+		ListRW = []
+		ListRWRW = []
+		for i in range(20):
+			random_sample = random.sample(full_crawl, num_samples)
+			RW, RWRW = analyze(random_sample)
+			ListRW.append(RW)
+			ListRWRW.append(RWRW)
+		ListListRW.append(ListRW)
+		ListListRWRW.append(ListRWRW)
+	meanAgeVSsampleSize(ListListRW,ListListRWRW)
 	db.close()
 
 
