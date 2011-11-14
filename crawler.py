@@ -131,7 +131,7 @@ def crawl():
                         print e
                         traceback.print_exc(file=sys.stdout)
                         
-                        if isinstance(e, urllib2.HTTPError) and ee.code == 500:
+                        if isinstance(e, urllib2.HTTPError) and e.code == 500:
 				print "[%s] HTTP error when trying to retrieve info from user %s. Rolling back to user %s" % (getTS(), login, crawl_order[-1])
                                 login = crawl_order[-1]
                                 num_friends = db[login].friends
@@ -139,8 +139,9 @@ def crawl():
                                 continue
 
                         if retry_count < 5:
-                                retry_count = retry_count + 1
                                 print "[%s] Retrying. Count: %d" % (getTS(), retry_count)
+				time.sleep(5)
+                                retry_count = retry_count + 1
                                 continue
                         else:
                                 print "[%s] Already retried 5 times. Saving state and stopping.." % (getTS())
