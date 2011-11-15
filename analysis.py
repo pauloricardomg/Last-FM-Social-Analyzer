@@ -57,26 +57,26 @@ def main():
 	random.seed(33)
 	
 	random_sample = random.sample(full_crawl, 40000)
-	#distributionsDegree(random_sample)
-	#distributionsAge(random_sample)
-	#distributionsPlaycount(random_sample)
-	#distributionsPlaylists(random_sample)
+	distributionsDegree(random_sample)
+	distributionsAge(random_sample)
+	distributionsPlaycount(random_sample)
+	distributionsPlaylists(random_sample)
 	distributionsId(random_sample)
 	
 	
-	#ListListRW = []
-	#ListListRWRW = []
-	#for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
-	#	ListRW = []
-	#	ListRWRW = []
-	#	for i in range(20):
-	#		random_sample = random.sample(full_crawl, num_samples)
-	#		RW, RWRW = analyze(random_sample)
-	#		ListRW.append(RW)
-	#		ListRWRW.append(RWRW)
-	#	ListListRW.append(ListRW)
-	#	ListListRWRW.append(ListRWRW)
-	#meanAgeVSsampleSize(ListListRW,ListListRWRW)
+	ListListRW = []
+	ListListRWRW = []
+	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
+		ListRW = []
+		ListRWRW = []
+		for i in range(20):
+			random_sample = random.sample(full_crawl, num_samples)
+			RW, RWRW = analyze(random_sample)
+			ListRW.append(RW)
+			ListRWRW.append(RWRW)
+		ListListRW.append(ListRW)
+		ListListRWRW.append(ListRWRW)
+	meanAgeVSsampleSize(ListListRW,ListListRWRW)
 	db.close()
 
 
