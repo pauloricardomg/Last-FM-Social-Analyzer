@@ -52,7 +52,7 @@ def get_num_friends(login):
         url_info = get_url("getfriends", login, "&limit=1")
         data = urllib2.urlopen(url_info).read()
         doc = xml.etree.ElementTree.fromstring(data)
-        num_friends = int(doc.find("friends").get("total"))
+	num_friends = int(doc.find("friends").get("total"))
 	return num_friends
 
 def get_friend(login, chosen_friend):
@@ -67,7 +67,8 @@ def crawl():
         global login
 	global crawl_order
 	num_crawls = 0
-        
+	lastlogin = login
+
         num_friends = get_num_friends(login)
 
         chosen_friend = -1
@@ -77,8 +78,15 @@ def crawl():
                 try:                    
 			if chosen_friend == -1:
                                 chosen_friend = random.randint(1, num_friends)
-                        
+
 			friend = get_friend(login, chosen_friend)
+			
+			if friend == None:
+				chosen_friend = -1
+                                print "[%s] Failed to retrieve friend from %s. Trying to retrieve another friend." % (getTS(), login)
+				continue
+
+			lastlogin = login
 			login = friend.findtext("name")
 
                         if db.has_key(login):
@@ -86,7 +94,7 @@ def crawl():
                                 num_friends = existing_user.friends
                                 crawl_count = int(existing_user.crawl_count)
                                 db[login] = existing_user._replace(crawl_count=str(crawl_count+1))
-                                print "[%s] Already crawled user: %s=%s" % (getTS(), login, str(db[login]))
+                                #print "[%s] Already crawled user: %s=%s" % (getTS(), login, str(db[login]))
                         else:
                                 user_id = friend.findtext("id")
                                 country = friend.findtext("country")
@@ -104,8 +112,8 @@ def crawl():
                         retry_count = 0
                         
 			if num_friends == 0:
-                                print "[%s] User %s has 0 friends. Rolling back to user %s" % (getTS(), login, crawl_order[-1])
-                                login = crawl_order[-1]
+                                print "[%s] User %s has 0 friends. Rolling back to user %s" % (getTS(), login, lastlogin)
+                                login = lastlogin
                                 num_friends = db[login].friends
 				continue
 
@@ -113,17 +121,10 @@ def crawl():
 			crawl_order.append(login)
 			if num_crawls % 100 == 0:
                                	print "[%s] Crawled %d users. Synchronizing DB.." % (getTS(), num_crawls)
-				try:
-					total_crawl_order = db["crawl-order"]
-					total_crawl_order.extend(crawl_order)
-					db["crawl-order"] = total_crawl_order
-				except KeyError:
-					db["crawl-order"] = crawl_order
+				save_state()
 				crawl_order = []
-				db["random-state"] = random.getstate() 
-				db.sync()
-                               	print "[%s] Sleeping 5 seconds. It is safe to stop now. Ctrl+C if you want to quit." % (getTS())
-                               	time.sleep(5)
+                               	print "[%s] Sleeping 2 seconds. It is safe to stop now. Ctrl+C if you want to quit." % (getTS())
+                               	time.sleep(2)
                                	print "[%s] Finished sleeping." % (getTS())
 
                 except Exception as e:
@@ -132,15 +133,15 @@ def crawl():
                         traceback.print_exc(file=sys.stdout)
                         
                         if isinstance(e, urllib2.HTTPError) and e.code == 500:
-				print "[%s] HTTP error when trying to retrieve info from user %s. Rolling back to user %s" % (getTS(), login, crawl_order[-1])
-                                login = crawl_order[-1]
+				print "[%s] HTTP error when trying to retrieve info from user %s. Rolling back to user %s" % (getTS(), login, lastlogin)
+                                login = lastlogin
                                 num_friends = db[login].friends
 				chosen_friend = -1
                                 continue
 
                         if retry_count < 5:
                                 print "[%s] Retrying. Count: %d" % (getTS(), retry_count)
-				time.sleep(5)
+				time.sleep(20)
                                 retry_count = retry_count + 1
                                 continue
                         else:
@@ -150,20 +151,28 @@ def crawl():
 
 
 def flush_db(signal="", frame=""):
-                global login
-		global crawl_order
-                print "Crawling finished. Closing DB file.!"
+
+        print "Crawling finished. Closing DB file.!"
+
+	save_state()
+
+	db.close()
+        
+	sys.exit(0)
+
+def save_state():
+	global crawl_order
+	try:
+		total_crawl_order = db["crawl-order"]
+		total_crawl_order.extend(crawl_order)
+		db["crawl-order"] = total_crawl_order
+	except KeyError:
+		db["crawl-order"] = crawl_order
+
+	db["random-state"] = random.getstate()
+
+	db.sync()
 	
-		try:
-			total_crawl_order = db["crawl-order"]
-			total_crawl_order.extend(crawl_order)
-			db["crawl-order"] = total_crawl_order
-		except KeyError:
-			db["crawl-order"] = crawl_order
-	
-		db["random-state"] = random.getstate() 
-		db.close()
-                sys.exit(0)
 
 if __name__ == "__main__":
             main()
