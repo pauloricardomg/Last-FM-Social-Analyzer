@@ -60,12 +60,14 @@ def main():
 
 	random.seed(33)
 	
-	distributionsDegree2(full_crawl, unique)
-	#distributionsDegree(full_crawl)
-	#distributionsAge(full_crawl)
+	#distributionsDegree2(full_crawl, unique)
+	VisitTimesVSDegree(unique)
+	distributionsDegree(full_crawl)
+	distributionsAge(full_crawl)
 	#distributionsPlaycount(full_crawl)
-	#distributionsPlaylists(full_crawl)
+	distributionsPlaylists(full_crawl)
 	#distributionsId(full_crawl)
+	analyze(full_crawl)
 	
 	#ListListRW = []
 	#ListListRWRW = []

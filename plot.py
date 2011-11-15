@@ -173,6 +173,40 @@ def distributionsDegree(ListLastFMUser):
     plt.title('Distribution of Number of Friends (RW vs RWRW)')
     plt.show()
     
+def VisitTimesVSDegree(ListLastFMUser):
+
+    populationSize = len(ListLastFMUser)
+    totalweight = 0.0
+    
+    DictVisitTimes = dict()
+    DictIds = dict()
+
+    for user in ListLastFMUser:
+        degree = int(user.friends)
+        visitTimes = int(user.crawl_count)
+	if degree in DictVisitTimes:
+            DictVisitTimes[degree] += visitTimes
+            DictIds[degree].add(user.id)
+	else:
+            DictVisitTimes[degree] = visitTimes
+	    DictIds[degree] = set()
+            DictIds[degree].add(user.id)
+
+    keys = DictVisitTimes.keys()
+    keys.sort()
+    times = []
+    for key in keys:
+        times.append(float(DictVisitTimes[key]) / float(len(DictIds[key])))
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.semilogx(keys, times, color="red")
+    ax.set_xlabel('Degree')
+    ax.set_ylabel('Average Visit Times')
+    plt.grid(True)
+    plt.title('Average Visit Times vs. Node Degree in Random Walk')
+    plt.show()
+    
 def distributionsAge(ListLastFMUser):
 
     populationSize = len(ListLastFMUser)
@@ -259,6 +293,49 @@ def distributionsPlaycount(ListLastFMUser):
     plt.title('Distribution of Playcount (RW vs RWRW)')
     plt.show()
 
+def distributionsPlaylists(ListLastFMUser):
+
+    populationSize = len(ListLastFMUser)
+    totalweight = 0.0
+    
+    DictWeight = dict()
+    DictPlaylists = dict()
+
+    for user in ListLastFMUser:
+	playlists = int(user.playlists)
+        degree = int(user.friends)
+        weight = 1.0/degree
+	if playlists in DictPlaylists:
+            DictPlaylists[playlists] += 1
+            DictWeight[playlists] += weight
+	else:
+            DictPlaylists[playlists] = 1
+            DictWeight[playlists] = weight
+        totalweight += weight 
+
+    keys = DictPlaylists.keys()
+    keys.sort()
+    probRW = []
+    probRWRW = []
+    
+    for key in keys:
+        probRW.append(float(DictPlaylists[key]) / float(populationSize))
+        probRWRW.append(DictWeight[key] / totalweight)
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.loglog(keys, probRWRW, color="red")
+    plt.loglog(keys, probRW, color="blue")
+    ax.set_xlabel('Playlists')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Playlists (RW vs RWRW)')
+    plt.show()
+    
 def distributionsPlaylists(ListLastFMUser):
 
     populationSize = len(ListLastFMUser)
