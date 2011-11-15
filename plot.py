@@ -161,7 +161,7 @@ def distributionsDegree(ListLastFMUser):
 
     fig = plt.figure()
     ax=fig.add_subplot(111)
-    plt.loglog(keys, probRW, color="blue")
+    plt.loglog(keys, probRW, color="blue", cumulative = True)
     plt.loglog(keys, probRWRW, color="red")
     ax.set_xlabel('Number of Friends')
     ax.set_ylabel('Probability')
@@ -421,76 +421,6 @@ def distributionsId(ListLastFMUser):
     plt.grid(True)
     plt.title('Distribution of Id (RW vs RWRW)')
     plt.show()
-
-def distributionsRWRWdegree(ListLastFMUser):
-    totalweight = 0.0
-    DictWeight = dict()
-    for user in ListLastFMUser:
-        degree = int(user.friends)
-        weight = 1.0/degree
-        if degree in DictWeight:
-            DictWeight[degree] += weight
-        else:
-            DictWeight[degree] = weight
-        totalweight += weight 
-
-    keys = DictWeight.keys()
-    keys.sort()
-    probability = []
-    for key in keys:
-        probability.append(DictWeight[key] / totalweight)
-    fig = plt.figure()
-    fig.add_subplot(111)
-    plt.loglog(keys, probability)
-    plt.grid(True)
-    plt.title('distribution of degree by RWRW')
-    plt.show()
-
-
-def distributionsRWRWdegree(ListLastFMUser):
-    for user in ListLastFMUser:
-        degree = int(user.friends)
-        weight = 1.0/degre
-        if degree in DictWeight:
-            DictWeight[degree] += weight
-        else:
-            DictWeight[degree] = weight
-        totalweight += weight 
-	
-    keys = DictWeight.keys()
-    keys.sort()
-    probability = []
-    for key in keys:
-        probability.append(DictWeight[key] / totalweight)
-    fig = plt.figure()
-    fig.add_subplot(111)
-    plt.loglog(keys, probability)
-    plt.grid(True)
-    plt.title('distribution of degree by RWRW')
-    plt.show()
-
-
-def distributionsRWid(ListLastFMUser):
-    populationSize = len(ListLastFMUser)
-    DictID = dict()
-    for user in ListLastFMUser:
-        id = int(user.id)
-        if id in DictID:
-            DictID[id] += 1
-        else:
-            DictID[id] = 1
-    keys = DictID.keys()
-    keys.sort()
-    probability = []
-    for key in keys:
-        probability.append(float(DictID[key]) / float(populationSize))
-    fig = plt.figure()
-    fig.add_subplot(111)
-    plt.loglog(keys, probability)
-    plt.grid(True)
-    plt.title('distribution of id by RW')
-    plt.show()
-
     
 
     
