@@ -4,7 +4,173 @@ import numpy as np
 from matplotlib.patches import Polygon
 from resulttypes import RWResult, RWRWResult
 
-def meanAgeVSsampleSize(ListListRW, ListListRWRW):
+def get_dists(users_list, attr):
+    population_size = len(users_list)
+    total_weight = 0.0
+    
+    dict_weight = dict()
+    dict_attr = dict()
+
+    for user in users_list:
+        chosen_attr = int(getattr(user,attr))
+        degree = int(user.friends)
+	weight = 1.0/degree
+	if chosen_attr in dict_attr:
+            dict_attr[chosen_attr] += 1
+            dict_weight[chosen_attr] += weight
+	else:
+            dict_attr[chosen_attr] = 1
+            dict_weight[chosen_attr] = weight
+        total_weight += weight 
+
+    keys = dict_attr.keys()
+    keys.sort()
+    
+    prob_RW = []
+    prob_RWRW = []
+    
+    for key in keys:
+        prob_RW.append(float(dict_attr[key]) / float(population_size))
+        prob_RWRW.append(dict_weight[key] / total_weight)
+
+    return (prob_RW, prob_RWRW, keys)
+
+def plot_degree_distribution(users_list):
+    probs = get_dists(users_list, "friends")
+    prob_RW = probs[0]
+    prob_RWRW = probs[1]
+    keys = probs[2]
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.loglog(keys, prob_RW, color="blue")
+    plt.loglog(keys, prob_RWRW, color="red")
+    ax.set_xlabel('Number of Friends')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Number of Friends (RW vs RWRW)')
+    plt.show()
+
+def plot_age_distribution(users_list):
+    probs = get_dists(users_list, "age")
+    prob_RW = probs[0]
+    prob_RWRW = probs[1]
+    keys = probs[2]
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.plot(keys, prob_RW, color="blue")
+    plt.plot(keys, prob_RWRW, color="red")
+    ax.set_xlabel('Age')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Age (RW vs RWRW)')
+    plt.show()
+    
+def plot_playcount_distribution(users_list):
+    probs = get_dists(users_list, "playcount")
+    prob_RW = probs[0]
+    prob_RWRW = probs[1]
+    keys = probs[2]
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.loglog(keys, prob_RWRW, color="red")
+    plt.loglog(keys, prob_RW, color="blue")
+    ax.set_xlabel('Playcount')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Playcount (RW vs RWRW)')
+    plt.show()
+
+def plot_playlists_distribution(users_list):
+    probs = get_dists(users_list, "playlists")
+    prob_RW = probs[0]
+    prob_RWRW = probs[1]
+    keys = probs[2]
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.loglog(keys, prob_RWRW, color="red")
+    plt.loglog(keys, prob_RW, color="blue")
+    ax.set_xlabel('Playlists')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Playlists (RW vs RWRW)')
+    plt.show()
+    
+def plot_id_distribution(users_list):
+    probs = get_dists(users_list, "id")
+    prob_RW = probs[0]
+    prob_RWRW = probs[1]
+    keys = probs[2]
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.semilogy(keys, prob_RWRW, 'o', color="red")
+    plt.semilogy(keys, prob_RW, 'o', color="blue")
+    ax.set_xlabel('Id')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Id (RW vs RWRW)')
+    plt.show()
+
+
+def plot_visittimes_vs_degree(users_list):
+    population_size = len(users_list)
+    total_weight = 0.0
+    
+    dict_visittimes = dict()
+    dict_ids = dict()
+
+    for user in users_list:
+        degree = int(user.friends)
+        visitTimes = int(user.crawl_count)
+	if degree in dict_visittimes:
+            dict_visittimes[degree] += visitTimes
+            dict_ids[degree].add(user.id)
+	else:
+            dict_visittimes[degree] = visitTimes
+	    dict_ids[degree] = set()
+            dict_ids[degree].add(user.id)
+
+    keys = dict_visittimes.keys()
+    keys.sort()
+    times = []
+    for key in keys:
+        times.append(float(dict_visittimes[key]) / float(len(dict_ids[key])))
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.semilogx(keys, times, color="red")
+    ax.set_xlabel('Degree')
+    ax.set_ylabel('Average Visit Times')
+    plt.grid(True)
+    plt.title('Average Visit Times vs. Node Degree in Random Walk')
+    plt.show()
+    
+
+def plot_meanage_vs_samplesize(ListListRW, ListListRWRW):
     num_ticks = len(ListListRW)
     ListListValues = []
     ListSampleSizes = []
@@ -67,362 +233,4 @@ def meanAgeVSsampleSize(ListListRW, ListListRWRW):
                color='white', weight='roman', size='x-small')
 
     plt.show()
-    
-def distributionsDegree2(ListLastFMUser, uniqueUsers):
- 
-    print "lists size: %d and %d" % (len(ListLastFMUser), len(uniqueUsers))
- 
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictDegree = dict()
-    DictUnique = dict()
 
-    for user in uniqueUsers:
-        degree = int(user.friends)
-	if degree in DictUnique:
-	    DictUnique[degree] += 1
-	else:
-	    DictUnique[degree] = 1
-
-    for user in ListLastFMUser:
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if degree in DictDegree:
-            DictDegree[degree] += 1
-            DictWeight[degree] += weight
-	else:
-            DictDegree[degree] = 1
-            DictWeight[degree] = weight
-        totalweight += weight 
-
-    keys = DictDegree.keys()
-    keys.sort()
-    
-    uniquekeys = DictUnique.keys()
-    uniquekeys.sort()
-    
-    probRW = []
-    probRWRW = []
-    probUnique = []
-    
-    for key in keys:
-        probRW.append(float(DictDegree[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    for key in uniquekeys:
-        probUnique.append(float(DictUnique[key]) / float(populationSize))
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.loglog(keys, probRW, color="blue")
-    plt.loglog(keys, probRWRW, color="red")
-    plt.loglog(uniquekeys, probUnique, color="green")
-    ax.set_xlabel('Number of Friends')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Number of Friends (RW vs RWRW)')
-    plt.show()
-
-
-
-def distributionsDegree(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictDegree = dict()
-
-    for user in ListLastFMUser:
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if degree in DictDegree:
-            DictDegree[degree] += 1
-            DictWeight[degree] += weight
-	else:
-            DictDegree[degree] = 1
-            DictWeight[degree] = weight
-        totalweight += weight 
-
-    keys = DictDegree.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictDegree[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.loglog(keys, probRW, color="blue", cumulative = True)
-    plt.loglog(keys, probRWRW, color="red")
-    ax.set_xlabel('Number of Friends')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Number of Friends (RW vs RWRW)')
-    plt.show()
-    
-def VisitTimesVSDegree(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictVisitTimes = dict()
-    DictIds = dict()
-
-    for user in ListLastFMUser:
-        degree = int(user.friends)
-        visitTimes = int(user.crawl_count)
-	if degree in DictVisitTimes:
-            DictVisitTimes[degree] += visitTimes
-            DictIds[degree].add(user.id)
-	else:
-            DictVisitTimes[degree] = visitTimes
-	    DictIds[degree] = set()
-            DictIds[degree].add(user.id)
-
-    keys = DictVisitTimes.keys()
-    keys.sort()
-    times = []
-    for key in keys:
-        times.append(float(DictVisitTimes[key]) / float(len(DictIds[key])))
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.semilogx(keys, times, color="red")
-    ax.set_xlabel('Degree')
-    ax.set_ylabel('Average Visit Times')
-    plt.grid(True)
-    plt.title('Average Visit Times vs. Node Degree in Random Walk')
-    plt.show()
-    
-def distributionsAge(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictAge = dict()
-
-    for user in ListLastFMUser:
-	age = int(user.age)
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if age in DictAge:
-            DictAge[age] += 1
-            DictWeight[age] += weight
-	else:
-            DictAge[age] = 1
-            DictWeight[age] = weight
-        totalweight += weight 
-
-    keys = DictAge.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictAge[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.plot(keys, probRW, color="blue")
-    plt.plot(keys, probRWRW, color="red")
-    ax.set_xlabel('Age')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Age (RW vs RWRW)')
-    plt.show()
-    
-def distributionsPlaycount(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictPlaycount = dict()
-
-    for user in ListLastFMUser:
-	playcount = int(user.playcount)
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if playcount in DictPlaycount:
-            DictPlaycount[playcount] += 1
-            DictWeight[playcount] += weight
-	else:
-            DictPlaycount[playcount] = 1
-            DictWeight[playcount] = weight
-        totalweight += weight 
-
-    keys = DictPlaycount.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictPlaycount[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.loglog(keys, probRWRW, color="red")
-    plt.loglog(keys, probRW, color="blue")
-    ax.set_xlabel('Playcount')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Playcount (RW vs RWRW)')
-    plt.show()
-
-def distributionsPlaylists(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictPlaylists = dict()
-
-    for user in ListLastFMUser:
-	playlists = int(user.playlists)
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if playlists in DictPlaylists:
-            DictPlaylists[playlists] += 1
-            DictWeight[playlists] += weight
-	else:
-            DictPlaylists[playlists] = 1
-            DictWeight[playlists] = weight
-        totalweight += weight 
-
-    keys = DictPlaylists.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictPlaylists[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.loglog(keys, probRWRW, color="red")
-    plt.loglog(keys, probRW, color="blue")
-    ax.set_xlabel('Playlists')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Playlists (RW vs RWRW)')
-    plt.show()
-    
-def distributionsPlaylists(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictPlaylists = dict()
-
-    for user in ListLastFMUser:
-	playlists = int(user.playlists)
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if playlists in DictPlaylists:
-            DictPlaylists[playlists] += 1
-            DictWeight[playlists] += weight
-	else:
-            DictPlaylists[playlists] = 1
-            DictWeight[playlists] = weight
-        totalweight += weight 
-
-    keys = DictPlaylists.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictPlaylists[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.loglog(keys, probRWRW, color="red")
-    plt.loglog(keys, probRW, color="blue")
-    ax.set_xlabel('Playlists')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Playlists (RW vs RWRW)')
-    plt.show()
-
-def distributionsId(ListLastFMUser):
-
-    populationSize = len(ListLastFMUser)
-    totalweight = 0.0
-    
-    DictWeight = dict()
-    DictId = dict()
-
-    for user in ListLastFMUser:
-	id = int(user.id)
-        degree = int(user.friends)
-        weight = 1.0/degree
-	if id in DictId:
-            DictId[id] += 1
-            DictWeight[id] += weight
-	else:
-            DictId[id] = 1
-            DictWeight[id] = weight
-        totalweight += weight 
-
-    keys = DictId.keys()
-    keys.sort()
-    probRW = []
-    probRWRW = []
-    
-    for key in keys:
-        probRW.append(float(DictId[key]) / float(populationSize))
-        probRWRW.append(DictWeight[key] / totalweight)
-
-    fig = plt.figure()
-    ax=fig.add_subplot(111)
-    plt.semilogy(keys, probRWRW, 'o', color="red")
-    plt.semilogy(keys, probRW, 'o', color="blue")
-    ax.set_xlabel('Id')
-    ax.set_ylabel('Probability')
-    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
-                color='white', weight='roman', size='small')
-    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
-                color='white', weight='roman', size='small')
-    plt.grid(True)
-    plt.title('Distribution of Id (RW vs RWRW)')
-    plt.show()
-    
-
-    
-if __name__ == "__main__":
-            main()

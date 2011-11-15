@@ -9,81 +9,57 @@ import traceback
 import time
 import datetime
 import math
-from resulttypes import RWResult, RWRWResult
 from plot import *
-
-LastFMUser = collections.namedtuple('LastFMUser', 'id, country, age, gender, playcount, playlists, friends, crawl_count')
-
-########################################################################
-
+from util import LastFMUser, result
 
 def main():
-        db = 0
-        login = "rj"
-        num_crawls = 0
-        num_total_users = 0
-        dbFile = ""
+        db_file = ""
         exist = False
 
         while(not exist):
-                #dbFile = raw_input("Crawl DB file (existing file): ")
-		dbFile="randomwalk.db"
+                db_file = raw_input("Crawl DB file (existing file): ")
                 try:
-                        open(dbFile)
+                        open(db_file)
                         exist = True
                 except IOError as e:
-                        print 'File %s does not exist.' % (dbFile)
+                        print 'File %s does not exist.' % (db_file)
         
         db = None
 
         try:
-                db = shelve.open(dbFile)
-                num_crawls = db["num-crawled-logins"]
-                login = db["last-crawled-login"]
-                num_total_users = len(db)-3
-                print "Crawled count: %s" % num_crawls
+                db = shelve.open(db_file)
+
+                crawl_order = db["crawl-order"]
+		login = crawl_order[-1]
+                num_crawls = len(crawl_order)
+
+                num_total_users = len(db)-2
+                print "Crawl count: %s" % num_crawls
                 print "Last crawled user: %s" % login
-                print "Total entries on DB: %d" % num_total_users
+                print "Unique entries on DB: %d" % num_total_users
         except Exception:
                 print "DB file not well-formed. Try another one"
                 if db != None:
                         db.close()
                         sys.exit(1)
 
-	full_crawl = load_crawl(db)
+	crawl_list = load_crawl(db)
+	unique_users = load_unique(db)
 
-	print "Full crawl size: %d" % len(full_crawl)
+	analyze(crawl_list)
 
-	random.seed(33)
-	
-	random_sample = random.sample(full_crawl, 40000)
-	distributionsDegree(random_sample)
-	distributionsAge(random_sample)
-	distributionsPlaycount(random_sample)
-	distributionsPlaylists(random_sample)
-	distributionsId(random_sample)
-	
-	
-	ListListRW = []
-	ListListRWRW = []
-	for num_samples in [100, 500, 1000, 2500, 5000, 10000, 25000, 40000]:
-		ListRW = []
-		ListRWRW = []
-		for i in range(20):
-			random_sample = random.sample(full_crawl, num_samples)
-			RW, RWRW = analyze(random_sample)
-			ListRW.append(RW)
-			ListRWRW.append(RWRW)
-		ListListRW.append(ListRW)
-		ListListRWRW.append(ListRWRW)
-	meanAgeVSsampleSize(ListListRW,ListListRWRW)
+	plot_visittimes_vs_degree(unique_users)
+	plot_degree_distribution(crawl_list)
+	plot_age_distribution(crawl_list)
+	plot_playlists_distribution(crawl_list)
+	plot_playcount_distribution(crawl_list)
+
 	db.close()
 
 
-
-def analyze(ListLastFMUser):
-	RW = RWResult()
-	RWRW = RWRWResult()
+def analyze(list_users):
+	RW = result()
+	RWRW = result()
 	
         unweighted_total_playcount = 0
         unweighted_total_playlists = 0
@@ -97,7 +73,7 @@ def analyze(ListLastFMUser):
         weighted_total_id = 0
         weighted_total_friends = 0
         total_weight = 0
-        for user in ListLastFMUser:
+        for user in list_users:
                 if user.age == '' or int(user.friends)==0:
                         num_total_users -= 1
                         continue
@@ -115,7 +91,7 @@ def analyze(ListLastFMUser):
                 weighted_total_friends += int(user.friends) * weight
                 total_weight += weight
 
-        num_total_users = len(ListLastFMUser)
+        num_total_users = len(list_users)
 	RW.samplesize = num_total_users
 	RWRW.samplesize = num_total_users
 	
@@ -131,7 +107,6 @@ def analyze(ListLastFMUser):
         RWRW.id = float(weighted_total_id) / total_weight
         RWRW.friends = float(weighted_total_friends) / total_weight
         
-        
 	print ""
         print "Results for sample size of {}".format(num_total_users)
 	print "{0:20s} {1:^15s} {2:^15s}".format("", "RW", "RWRW")
@@ -144,6 +119,7 @@ def analyze(ListLastFMUser):
 
 	return RW, RWRW
 
+# Aux methods
 
 def add(x,y):
         return x+y
@@ -157,18 +133,28 @@ def variance(valueList):
         for x in valueList:
                 variance += math.pow(x-mean,2)
         return variance / length
-                
+
 def load_crawl(db):
+	crawl_order = db["crawl-order"]
 	crawl = []
-        for login, info in db.iteritems():
-                if isinstance(info, LastFMUser):
-                        if info.age == '' or int(info.friends)==0:
-                                continue
-			
-			for i in range(int(info.crawl_count)):
-				crawl.append(info)
+	for login in crawl_order:
+		info = db[login]
+		if info.age == '' or int(info.friends) == 0:
+			continue
+		crawl.append(info)
 
 	return crawl
+
+def load_unique(db):
+	crawl = []
+	for login in db.keys():
+        	info = db[login]
+		if isinstance(info, LastFMUser):
+                	if info.age == '' or int(info.friends) == 0:
+				continue
+			crawl.append(info)
+	return crawl
+
 
 if __name__ == "__main__":
             main()
