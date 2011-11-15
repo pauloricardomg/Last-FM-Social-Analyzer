@@ -68,6 +68,69 @@ def meanAgeVSsampleSize(ListListRW, ListListRWRW):
 
     plt.show()
     
+def distributionsDegree2(ListLastFMUser, uniqueUsers):
+ 
+    print "lists size: %d and %d" % (len(ListLastFMUser), len(uniqueUsers))
+ 
+    populationSize = len(ListLastFMUser)
+    totalweight = 0.0
+    
+    DictWeight = dict()
+    DictDegree = dict()
+    DictUnique = dict()
+
+    for user in uniqueUsers:
+        degree = int(user.friends)
+	if degree in DictUnique:
+	    DictUnique[degree] += 1
+	else:
+	    DictUnique[degree] = 1
+
+    for user in ListLastFMUser:
+        degree = int(user.friends)
+        weight = 1.0/degree
+	if degree in DictDegree:
+            DictDegree[degree] += 1
+            DictWeight[degree] += weight
+	else:
+            DictDegree[degree] = 1
+            DictWeight[degree] = weight
+        totalweight += weight 
+
+    keys = DictDegree.keys()
+    keys.sort()
+    
+    uniquekeys = DictUnique.keys()
+    uniquekeys.sort()
+    
+    probRW = []
+    probRWRW = []
+    probUnique = []
+    
+    for key in keys:
+        probRW.append(float(DictDegree[key]) / float(populationSize))
+        probRWRW.append(DictWeight[key] / totalweight)
+
+    for key in uniquekeys:
+        probUnique.append(float(DictUnique[key]) / float(populationSize))
+
+    fig = plt.figure()
+    ax=fig.add_subplot(111)
+    plt.loglog(keys, probRW, color="blue")
+    plt.loglog(keys, probRWRW, color="red")
+    plt.loglog(uniquekeys, probUnique, color="green")
+    ax.set_xlabel('Number of Friends')
+    ax.set_ylabel('Probability')
+    plt.figtext(0.80, 0.80, 'RW', backgroundcolor="blue",
+                color='white', weight='roman', size='small')
+    plt.figtext(0.80, 0.77, 'RWRW', backgroundcolor="red",
+                color='white', weight='roman', size='small')
+    plt.grid(True)
+    plt.title('Distribution of Number of Friends (RW vs RWRW)')
+    plt.show()
+
+
+
 def distributionsDegree(ListLastFMUser):
 
     populationSize = len(ListLastFMUser)

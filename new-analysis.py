@@ -53,17 +53,19 @@ def main():
                         db.close()
                         sys.exit(1)
 
-	full_crawl = load_crawl(db)
+	full_crawl = load_crawl2(db)
+	unique = load_unique(db)
 
 	print "Full crawl size: %d" % len(full_crawl)
 
 	random.seed(33)
 	
-	distributionsDegree(full_crawl)
-	distributionsAge(full_crawl)
-	distributionsPlaycount(full_crawl)
-	distributionsPlaylists(full_crawl)
-	distributionsId(full_crawl)
+	distributionsDegree2(full_crawl, unique)
+	#distributionsDegree(full_crawl)
+	#distributionsAge(full_crawl)
+	#distributionsPlaycount(full_crawl)
+	#distributionsPlaylists(full_crawl)
+	#distributionsId(full_crawl)
 	
 	#ListListRW = []
 	#ListListRWRW = []
@@ -165,7 +167,6 @@ def load_crawl2(db):
 	for login in crawl_order:
 		info = db[login]
 		if info.age == '' or int(info.friends) == 0:
-			print "User %s has no age or no friends" % login
 			continue
 		crawl.append(info)
 
@@ -183,6 +184,18 @@ def load_crawl(db):
 				crawl.append(info)
 
 	return crawl
+
+def load_unique(db):
+	crawl = []
+	for login in db.keys():
+		info = db[login]
+                if isinstance(info, LastFMUser):
+			if info.age == '' or int(info.friends) == 0:
+				continue
+			crawl.append(info)
+
+	return crawl
+
 
 if __name__ == "__main__":
             main()
