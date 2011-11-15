@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 from matplotlib.patches import Polygon
-from resulttypes import RWResult, RWRWResult
 
 def get_dists(users_list, attr):
     population_size = len(users_list)
