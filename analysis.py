@@ -26,7 +26,8 @@ def main():
         exist = False
 
         while(not exist):
-                dbFile = raw_input("Crawl DB file (existing file): ")
+                #dbFile = raw_input("Crawl DB file (existing file): ")
+		dbFile="randomwalk.db"
                 try:
                         open(dbFile)
                         exist = True
@@ -56,8 +57,11 @@ def main():
 	random.seed(33)
 	
 	random_sample = random.sample(full_crawl, 40000)
-	distributionsDegree(random_sample)
-	#distributionsRWRWdegree(random_sample)
+	#distributionsDegree(random_sample)
+	#distributionsAge(random_sample)
+	#distributionsPlaycount(random_sample)
+	#distributionsPlaylists(random_sample)
+	distributionsId(random_sample)
 	
 	
 	#ListListRW = []
